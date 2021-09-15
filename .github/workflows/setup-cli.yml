@@ -8,9 +8,8 @@ permissions:
       contents: write    # This is required for actions/checkout@v1
 
 jobs:
-  job:
-   
-    runs-on: self-hosted
+  azcli-install:
+    runs-on: ubuntu-latest
     steps:
    
       - name: Git clone the repository
@@ -22,6 +21,7 @@ jobs:
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
 
       - run: |
+         az --version
          apt install gcc python3-dev
          pip install azdev
          echo pwd
