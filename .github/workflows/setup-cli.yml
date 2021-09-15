@@ -1,0 +1,33 @@
+name: az-cli setup for OIDC 
+on:
+ workflow_dispatch:
+  
+# permission can be added at job level or workflow level    
+permissions:
+      id-token: write
+      contents: write    # This is required for actions/checkout@v1
+
+jobs:
+  azcli-install:
+    runs-on: ubuntu-latest
+    steps:
+   
+      - name: Git clone the repository
+        uses: actions/checkout@v1
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+
+      - run: |
+         az --version
+         apt install gcc python3-dev
+         pip install azdev
+         echo pwd
+         azdev setup --cli .
+         az --version
+        working-directory: GITHUB_WORKSPACE
+
+      - run: |
+         az --version
