@@ -22,7 +22,7 @@ jobs:
 
       - run: |
          az --version
-         apt install gcc python3-dev
+         sudo apt install gcc python3-dev
          pip install azdev
          echo pwd
          azdev setup --cli .
