@@ -27,7 +27,7 @@ jobs:
          echo pwd
          azdev setup --cli .
          az --version
-        working-directory: $GITHUB_WORKSPACE
+#        working-directory: $GITHUB_WORKSPACE
 
       - run: |
          az --version
