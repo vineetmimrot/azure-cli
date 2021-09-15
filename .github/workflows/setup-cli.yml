@@ -1,0 +1,35 @@
+name: az-cli setup for OIDC 
+on:
+ workflow_dispatch:
+  
+# permission can be added at job level or workflow level    
+permissions:
+      id-token: write
+      contents: write    # This is required for actions/checkout@v1
+
+jobs:
+  job:
+   
+    runs-on: self-hosted
+    steps:
+   
+      - name: Git clone the repository
+        uses: actions/checkout@v1
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+
+    
+      ################### Steps mentioned in this block would later be moved to the cloud’s login action ####################### 
+      - uses: actions/setup-node@v2
+      - run: npm install @actions/core@1.6.0-beta.0 
+      - uses: actions/github-script@v4
+        id: idtoken
+        with:
+        # Audience field is optional. By default, the value is the repo's url. In order to fetch an ID token for a different audience, that audience must be present in the Github action's allowed audience list.
+          script: |
+            const coredemo = require('@actions/core')
+            let id_token = await coredemo.getIDToken('api://AzureADTokenExchange') 
+            coredemo.setOutput('id_token', id_token)
