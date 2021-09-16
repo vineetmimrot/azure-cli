@@ -22,12 +22,14 @@ jobs:
 
       - run: |
          az --version
+         python -m venv env
+         source env/bin/activate
          sudo apt install gcc python3-dev
          pip install azdev
          pwd
          azdev setup --cli .
          az --version
-#        working-directory: $GITHUB_WORKSPACE
+        working-directory: $GITHUB_WORKSPACE
 
       - run: |
          az --version
