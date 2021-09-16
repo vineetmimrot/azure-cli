@@ -29,7 +29,7 @@ jobs:
          pwd
          azdev setup --cli .
          az --version
-#        working-directory: $GITHUB_WORKSPACE
 
       - run: |
+         source env/bin/activate
          az --version
