@@ -24,7 +24,7 @@ jobs:
          az --version
          sudo apt install gcc python3-dev
          pip install azdev
-         echo pwd
+         pwd
          azdev setup --cli .
          az --version
 #        working-directory: $GITHUB_WORKSPACE
