@@ -20,7 +20,8 @@ jobs:
           python-version: '3.8' # Version range or exact version of a Python version to use, using SemVer's version range syntax
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
 
-      - run: |
+      - name: Install Azure CLI
+        run: |
          az --version
          python -m venv env
          source env/bin/activate
@@ -30,14 +31,16 @@ jobs:
          azdev setup --cli .
          az --version
 
-      - run: |
+      - name: Use installed azure cli tool
+        run: |
          # This will enable to use cli version which we have installed in above step
          source env/bin/activate
          az --version
          
       - uses: actions/setup-node@v2
       - run: npm install @actions/core@1.6.0-beta.0 
-      - uses: actions/github-script@v4
+      - name: get OIDC id token
+        uses: actions/github-script@v4
         id: idtoken
         with:
         # Audience field is optional. By default, the value is the repo's url. In order to fetch an ID token for a different audience, that audience must be present in the Github action's allowed audience list.
@@ -49,7 +52,8 @@ jobs:
       - name: get Access Token
         id: accessToken
         run: |
-          big_json=$(curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'client_id=932bfa98-a535-4406-881b-447f8c7b3eb4&scope=https://graph.microsoft.com/.default&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=${{ steps.idtoken.outputs.id_token }}&grant_type=client_credentials' 'https://login.microsoftonline.com/55d2ac9d-9289-4a54-9cc7-47222a96a7fa/oauth2/v2.0/token?dc=ESTS-PUB-WUS2-AZ1-FD000-TEST1')
+          # Update client_Id with your own
+          big_json=$(curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'client_id=<client_Id>&scope=https://graph.microsoft.com/.default&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=${{ steps.idtoken.outputs.id_token }}&grant_type=client_credentials' 'https://login.microsoftonline.com/55d2ac9d-9289-4a54-9cc7-47222a96a7fa/oauth2/v2.0/token?dc=ESTS-PUB-WUS2-AZ1-FD000-TEST1')
           big_json="${big_json//'%'/'%25'}"
           big_json="${big_json//$'\n'/'%0A'}"
           big_json="${big_json//$'\r'/'%0D'}"
