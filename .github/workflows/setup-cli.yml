@@ -40,11 +40,11 @@ jobs:
         with:
         # Audience field is optional. By default, the value is the repo's url. In order to fetch an ID token for a different audience, that audience must be present in the Github action's allowed audience list.
           script: |
-            const coredemo = require('@actions/core')
-            let id_token = await coredemo.getIDToken('api://AzureADTokenExchange') 
-            coredemo.setOutput('id_token', id_token)
+            const action_core = require('@actions/core')
+            let id_token = await action_core.getIDToken('api://AzureADTokenExchange') 
+            action_core.setOutput('id_token', id_token)
     
-       # You can use the OIDC Id_token retrieved in step above using steps.idtoken.outputs.id_token and pass to AzCli to fetch access token
+       # You can use the OIDC Id_token retrieved in step above using ${{ steps.idtoken.outputs.id_token }} and pass to AzCli to fetch access token
       - name: Use installed azure cli tool
         run: |
          source env/bin/activate
