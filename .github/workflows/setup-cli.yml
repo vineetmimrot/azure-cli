@@ -31,15 +31,10 @@ jobs:
          azdev setup --cli .
          az --version
 
-      - name: Use installed azure cli tool
-        run: |
-         # This will enable to use cli version which we have installed in above step
-         source env/bin/activate
-         az --version
-         
+      # Following section fetches OIDC token from provider
       - uses: actions/setup-node@v2
       - run: npm install @actions/core@1.6.0-beta.0 
-      - name: get OIDC id token
+      - name: Get OIDC id token
         uses: actions/github-script@v4
         id: idtoken
         with:
@@ -48,11 +43,20 @@ jobs:
             const coredemo = require('@actions/core')
             let id_token = await coredemo.getIDToken('api://AzureADTokenExchange') 
             coredemo.setOutput('id_token', id_token)
-            
-      - name: get Access Token
+    
+       # You can use the OIDC Id_token retrieved in step above using steps.idtoken.outputs.id_token and pass to AzCli to fetch access token
+      - name: Use installed azure cli tool
+        run: |
+         source env/bin/activate
+         az --version
+         echo steps.idtoken.outputs.id_token
+
+
+      # Following steps are just for reference purpose to fetch Access token via OIDC token
+      # This step fetches access token, do update <cliend_Id> used below with your own.
+      - name: Get Access Token
         id: accessToken
         run: |
-          # Update client_Id with your own
           big_json=$(curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'client_id=<client_Id>&scope=https://graph.microsoft.com/.default&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=${{ steps.idtoken.outputs.id_token }}&grant_type=client_credentials' 'https://login.microsoftonline.com/55d2ac9d-9289-4a54-9cc7-47222a96a7fa/oauth2/v2.0/token?dc=ESTS-PUB-WUS2-AZ1-FD000-TEST1')
           big_json="${big_json//'%'/'%25'}"
           big_json="${big_json//$'\n'/'%0A'}"
@@ -60,6 +64,7 @@ jobs:
           echo "::set-output name=big_json::$big_json"
           echo $big_json        
         
+        # This step makes sample graph API call with Access token retrieved in step above, to validate access token. 
       - name: Graph Api Call using Access Token
         run: |
           big_json=$(curl -X GET -H "Authorization: Bearer ${{fromJson(steps.accessToken.outputs.big_json).access_token}}" -H "Content-Type: application/json" https://graph.microsoft.com/v1.0/users/adfadadb-5d97-4fbd-aad3-0f097138f199/identities)
@@ -68,4 +73,3 @@ jobs:
           big_json="${big_json//$'\r'/'%0D'}"
           echo "::set-output name=big_json::$big_json"
           echo $big_json
-         
